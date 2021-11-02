@@ -1,0 +1,4 @@
+/**
+* Produces a syntax error, this error should be unique from the errors
+* that Program3 and Program4 cover.
+*/

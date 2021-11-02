@@ -1,0 +1,7 @@
+/**
+* takes in a single command line argument that is an integer x, and prints
+* out 'prime' if x is prime, else 'not prime'
+*
+* Program2.txt 7 should print out "prime"
+* Program2.txt 8 should print out "not prime"
+*/

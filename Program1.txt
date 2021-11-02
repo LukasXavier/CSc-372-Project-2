@@ -1,0 +1,6 @@
+/**
+* takes in three command line arguments that are integers x,y, and m
+* calculate and print out the number of multiples of x and y in the range 1 to m.
+*
+* example; Program1.txt 2 5 20 should print out "12"
+*/
