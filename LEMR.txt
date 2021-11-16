@@ -1,0 +1,85 @@
+* = extra credit
+
+Loops:
+
+	fori(int i + 2, 0, 10) { (increment) (range type based on i type)
+	}
+
+	or
+
+	fori(int i - 1, 10, 1) { (decrement) 
+	}
+
+	while(boolean) {
+	}
+
+*	foreach(int e : [1, 2, 3]) {
+		do thing to e
+	}
+
+Conditionals:
+	
+	if() {
+	}
+*	elif() {
+	}
+*	else{
+	}
+
+*	(boolean) ? if true : if false
+
+Printing:
+	
+	>{anything} (print) [1, 2, 3, 4] (array print)
+	>>{anything} (println)
+
+String Literals: 
+	
+	"" = string
+	'' = char
+
+Comparison:
+
+	(same type)<(same type)
+	(same type)>(same type)
+	(same type)=(same type)
+*	(same type)>=(same type)
+*	(same type)<=(same type)
+
+Booleans:
+
+	!true = false
+	true | false = true
+	true & false = false
+*	true ^ false = true
+
+Math: 
+
+	+, -, /, *, %
+*	float operations
+
+Multi-Line Expression:
+
+*	(expression) & (expression) & (expression)\
+	(expression) & (expression)
+
+Variables: 
+
+	int x = 2
+	string myStr= "hello"
+
+Comments:
+
+	// single line comment
+
+	/*
+	multi-line comment
+	*/
+
+*Casting:
+
+	int(double)
+
+*Arrays:
+
+	[]
