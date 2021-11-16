@@ -1,6 +1,21 @@
-/**
-* takes in three command line arguments that are integers x,y, and m
-* calculate and print out the number of multiples of x and y in the range 1 to m.
-*
-* example; Program1.txt 2 5 20 should print out "12"
+/*
+takes in three command line arguments that are integers x,y, and m
+calculate and print out the number of multiples of x and y in the range 1 to m.
+
+example; Program1.txt 2 5 20 should print out "12"
 */
+
+int[] args = CLArgs()
+int a = int[0]
+int b = int[1]
+int c = int[2]
+int count = 0
+
+fori(i, 1, 20) {
+    if i%a == 0
+        count++
+    if i%b == 0
+        count++
+}
+
+>{count}
