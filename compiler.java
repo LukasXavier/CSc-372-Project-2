@@ -7,6 +7,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class compiler {
+
+    private static void test(Pattern pattern, String test) {
+        Matcher match = pattern.matcher(test);
+        if (match.find()) {
+            System.out.println(match.group());
+        }
+        else {
+            System.out.println("No Match Found");
+        }
+    }
+
     public static void main(String[] args) {
 
         // ArrayList<String> lines = new ArrayList<String>();
@@ -21,41 +32,40 @@ public class compiler {
         //     e.printStackTrace();
         // }
         
-        Pattern intExpression = Pattern.compile("^([a-zA-Z]{1}[\\w]*)[\\s]([+-[*]/%])[\\s]([\\w]+$)");
-        Pattern boolExpression = Pattern.compile("^([\\w]+)[\\s]([\\|&<>=!])[\\s]([\\w]+$)");
-        
-        Pattern ints = Pattern.compile("[0-9]*");
-        String intExpTest1 = "gr3ger + rr";
-        String intExpTest2 = "d + 24";
-        String boolExpTest1 = "true = false";
-        String boolExpTest2 = "5 | 6";
-        Matcher m1 = intExpression.matcher(intExpTest1);
-        Matcher m2 = intExpression.matcher(intExpTest2);
-        Matcher m3 = boolExpression.matcher(boolExpTest1);
-        Matcher m4 = boolExpression.matcher(boolExpTest2);
-        if (m1.find()) {
-            System.out.println(m1.group());
-        }
-        else {
-            System.out.println("No Match Found");
-        }
-        if (m2.find()) {
-            System.out.println(m2.group(0));
-        }
-        else {
-            System.out.println("No Match Found");
-        }
-        if (m3.find()) {
-            System.out.println(m3.group());
-        }
-        else {
-            System.out.println("No Match Found");
-        }
-        if (m4.find()) {
-            System.out.println(m4.group(0));
-        }
-        else {
-            System.out.println("No Match Found");
-        }
+        Pattern intExpression = Pattern.compile("^[\\w]+([\\s][+-[*]/%][\\s][\\w]+)+$");
+        Pattern boolExpression = Pattern.compile("^([\\w]+)([\\s](\\||&|<|>|!|==)[\\s]([\\w]+))+$");
+        Pattern varAssignment = Pattern.compile("^([\\w]+)[\\s](=)[\\s]([\\w]+)$");
+        Pattern stringLiteral = Pattern.compile("^([\"][^\"]*[\"])$");
+        Pattern conditional = Pattern.compile("if \\((.+)\\) \\{(.+)\\}");
+        Pattern comments = Pattern.compile("(//.+)|(/[*].+[*]/)");
+        Pattern print = Pattern.compile("^(>\\{(.+)\\}|>>\\{(.+)\\})$");
+        Pattern loop = Pattern.compile("^(while[\\s]*\\((.+)\\)[\\s]*\\{(.+)\\})$");
+        Pattern ints = Pattern.compile("[0-9]+");
+        Pattern chars = Pattern.compile("\'[a-zA-Z]\'");
+        Pattern bool = Pattern.compile("true|false");
+        test(intExpression, "3 + 6 * 1");
+        test(intExpression, "1 + 2-1");
+        test(boolExpression, "true == false & true | false");
+        test(boolExpression, "5 - 6");
+        test(stringLiteral, "\"true = false\"");
+        test(stringLiteral, "5 | 6");
+        test(varAssignment, "thing = 3");
+        test(varAssignment, "th*ng = rdd");
+        test(ints, "34");
+        test(ints, "d");
+        test(chars, "'s'");
+        test(chars, "a");
+        test(bool, "true");
+        test(bool, "a");
+        test(conditional, "if (3 + 2 = 5) {>{\"yee\"}}");
+        test(conditional, "if (3 + 2) {>{\"yee\"");
+        test(print, ">{\"yee\"}");
+        test(print, ">>{\"yee\"}");
+        test(print, ">>{\"yee\"}r");
+        test(loop, "while(gamer) {fdsfds}");
+        test(loop, "while    (gamer) {fdsfds}");
+        test(loop, "while    (gamer) {}");
+        test(comments, "// yee");
+        test(comments, "/* fdgdfdffgsd */");
     }
 }
