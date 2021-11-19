@@ -112,7 +112,7 @@ public class compiler {
 
         // (left) (op) (right [recursive])
         // true == true
-        Pattern bExpr = Pattern.compile("^([\\w]+)[\\s]*(\\||&|<|>|!|==)[\\s]*(.+)+$");
+        Pattern bExpr = Pattern.compile("(.+?)(\b\\||&|<|>|!|={2}\b)(.+)");
         // ^([a-zA-Z]{1}[\\w]*)[\\s](=)[\\s]([\\w]+)$
 
         // (variableName) = (value)
@@ -196,6 +196,7 @@ public class compiler {
             for (String e: m.group(6).split("" + '\0')) {
                 res += expression(e);
             }
+            res += "}";
             return res;
         }
         throw new Exception();
@@ -208,48 +209,114 @@ public class compiler {
         if (m.find()) {
             // (leftside) (op) (rightside)
             res += m.group(1) + " " + m.group(2) + " " + iExpr(p, m.group(3));
-        } else {
+        } 
+        else {
             m = getPatterns()[7].matcher(s);
             if (m.find()) {
-                res += iExpr(getPatterns()[7], s);
+                return m.group(0);
             }
         }
         return res;
     }
 
-    // TODO:
-    private static String bExpr(Pattern p, String s) {
+    // parsed = [before operator, operator, after operator]
+    private static String bExpr(Pattern p, String s) throws Exception {
+        String[] parsed = getBExpr(s);
+        if (parsed == null) {
+            return s;
+        }
+        else {
+            return expression(parsed[0]) + " " + parsed[1] + " " + bExpr(p, parsed[2]);
+        }
+    }
+
+    private static String[] parseBExpr(String s, char operator, int i) {
+        String[] parsed = new String[3];
+        parsed[0] = s.substring(0, i);
+        parsed[1] = Character.toString(operator);
+        parsed[2] = s.substring(i+1, s.length());
+        return parsed;
+    }
+
+    private static String[] getBExpr(String s) {
+        char[] chars = s.toCharArray();
+        int equalCount = 0;
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == '&') {
+                return parseBExpr(s, '&', i);
+            }
+            else if (chars[i] == '|') {
+                return parseBExpr(s, '|', i);
+            }
+            else if (chars[i] == '<') {
+                return parseBExpr(s, '<', i);
+            }
+            else if (chars[i] == '>') {
+                return parseBExpr(s, '>', i);
+            }
+            else if (chars[i] == '!') {
+                return parseBExpr(s, '!', i);
+            }
+            else if (chars[i] == '=') {
+                equalCount++;
+                if (equalCount == 2) {
+                    String[] parsed = new String[3];
+                    parsed[0] = s.substring(0, i-1);
+                    parsed[1] = "==";
+                    parsed[2] = s.substring(i+1, s.length());
+                    return parsed;
+                }
+            }
+            else {
+                equalCount = 0;
+            }
+        }
+        return null;
+    }
+    
+    private static String vAssn(Pattern p, String s) throws Exception {
         String res = "";
         Matcher m = p.matcher(s);
         if (m.find()) {
-            res += "";
+            res += varType(m.group(2)) + " " + m.group(0) + ";";
         }
         return res;
     }
-    // TODO:
-    private static String vAssn(Pattern p, String s) {
+
+    private static String varType(String s) throws Exception {
+        Pattern[] patterns = getPatterns();
+        if (patterns[3].matcher(s).find()) {
+            return "String";
+        }
+        else if (patterns[8].matcher(s).find()) {
+            return "char";
+        }
+        else if (patterns[11].matcher(s).find()) {
+            return "boolean";
+        }
+        else if (patterns[7].matcher(s).find()) {
+            return "int";
+        }
+        throw new Exception();
+    }
+
+    
+    private static String conditional(Pattern p, String s) throws Exception {
         String res = "";
         Matcher m = p.matcher(s);
+        Pattern[] patterns = getPatterns();
         if (m.find()) {
-            res += "";
-        }
+            // if (bExpr) {(expression)}
+            res += " if (" + bExpr(patterns[1], m.group(1))  + ") {" + expression(m.group(2)) + "} ";
+        } 
         return res;
     }
-    // TODO:
-    private static String conditional(Pattern p, String s) {
-        String res = "";
-        Matcher m = p.matcher(s);
-        if (m.find()) {
-            res += "";
-        }
-        return res;
-    }
-    // TODO:
+    
     private static String print(Pattern p, String s) {
         String res = "";
         Matcher m = p.matcher(s);
         if (m.find()) {
-            res += "";
+            res += m.group(1);
         }
         return res;
     }
@@ -273,7 +340,7 @@ public class compiler {
     }
 
     // TODO: I believe this is done
-    private static String expression(String s) {
+    private static String expression(String s) throws Exception {
         String res = "";
         Pattern[] patterns = getPatterns();
         Pattern iExpr = patterns[0];
@@ -283,19 +350,19 @@ public class compiler {
         Pattern print = patterns[5];
         Pattern wLoop = patterns[6];
         Pattern fiLoop = patterns[9];
-        Matcher m = iExpr.matcher(s);
+        Matcher m = conditional.matcher(s);
         if (m.find()) {
-            return res += iExpr(iExpr, s);
+            return res += conditional(conditional, s);
         } m = bExpr.matcher(s);
         if (m.find()) {
             return res += bExpr(bExpr, s);
+        } m = iExpr.matcher(s);
+        if (m.find()) {
+            return res += iExpr(iExpr, s);
         } m = vAssn.matcher(s);
         if (m.find()) {
             return res += vAssn(vAssn, s);
-        } m = conditional.matcher(s);
-        if (m.find()) {
-            return res += conditional(conditional, s);
-        } m = print.matcher(s);
+        }  m = print.matcher(s);
         if (m.find()) {
             return res += print(print, s);
         } m = wLoop.matcher(s);
@@ -311,19 +378,32 @@ public class compiler {
     public static void main(String[] args) throws Exception {
         ArrayList<String> lines = getLines(args);
         Pattern[] patterns = getPatterns();
+        String expressionType;
         for (String s : lines) {
-            // TODO: finish implementing the different outer most expression calls
-            if (s.contains("getArg")) {
-                System.out.println(getArg(args, patterns[10], s));
-            }
-            else if (s.contains("fori")) {
+            // expressionType checks for the first word in the line
+            // to get the expression type
+            expressionType = s.strip().split(" ")[0];
+            if (expressionType.equals("fori")) {
                 System.out.println(fori(patterns[9], s));
             }
-            else if (s.contains("while")) {
-                // TODO:
+            else if (expressionType.equals("while")) {
+                System.out.println(wLoop(patterns[6], s));
             }
-            else if (s.contains("if")) {
-                // TODO:
+            else if (expressionType.equals("if")) {
+                System.out.println(conditional(patterns[4], s));
+            }
+            else if (expressionType.contains(">{")) {
+                System.out.println(print(patterns[5], s));
+            }
+            // if the line did not contain a key word first then
+            // it is evaluated as either a getArg() call or a variable assignment
+            else {
+                if (s.contains("getArg")) {
+                    System.out.println(getArg(args, patterns[10], s));
+                }
+                else {
+                    System.out.println(vAssn(patterns[2], s));
+                }
             }
         }
     }
