@@ -225,9 +225,30 @@ public class compiler {
         if (parsed == null) {
             return s;
         }
+        else if (parsed.length == 1) {
+            return primitive(parsed[0]);
+        }
         else {
             return expression(parsed[0]) + " " + parsed[1] + " " + bExpr(p, parsed[2]);
         }
+    }
+
+    private static String primitive(String s)  throws Exception {
+        Pattern[] patterns = getPatterns();
+        Pattern ints = patterns[7];
+        Pattern chars = patterns[8];
+        Pattern bool = patterns[11];
+        Matcher m = ints.matcher(s);
+        if (m.find()) {
+            return s;
+        } m = chars.matcher(s);
+        if (m.find()) {
+            return s;
+        } m = bool.matcher(s);
+        if (m.find()) {
+            return s;
+        }
+        throw new Exception();
     }
 
     private static String[] parseBExpr(String s, char operator, int i) {
@@ -238,7 +259,7 @@ public class compiler {
         return parsed;
     }
 
-    private static String[] getBExpr(String s) {
+    private static String[] getBExpr(String s) throws Exception {
         char[] chars = s.toCharArray();
         int equalCount = 0;
         for (int i = 0; i < chars.length; i++) {
@@ -257,18 +278,21 @@ public class compiler {
             else if (chars[i] == '!') {
                 return parseBExpr(s, '!', i);
             }
-            else if (chars[i] == '=') {
+            else if (chars[i] == '=' && equalCount == 1) {
+                String[] parsed = new String[3];
+                parsed[0] = s.substring(0, i-1);
+                parsed[1] = "==";
+                parsed[2] = s.substring(i+1, s.length());
+                return parsed;
+            }
+            else if (chars[i] == '=' && equalCount == 0) {
                 equalCount++;
-                if (equalCount == 2) {
-                    String[] parsed = new String[3];
-                    parsed[0] = s.substring(0, i-1);
-                    parsed[1] = "==";
-                    parsed[2] = s.substring(i+1, s.length());
-                    return parsed;
-                }
+            }
+            else if (chars[i] != '=' && equalCount == 1) {
+                equalCount = 0;
             }
             else {
-                equalCount = 0;
+                return new String[] {s};
             }
         }
         return null;
