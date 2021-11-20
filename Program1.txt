@@ -18,7 +18,15 @@ fori (i + 1, 1, c) {
         count = count + 1
     }
     if (i % b == 0) {
-        count = count + 1
+        count = count + 1  
+    }
+    if (3 + 2 == 5 + 5) {
+        >{count}
+    }
+    if (3 + 2 == b + 5) {
+        if (23 + 4 < 3 + 6) {
+            a = 3
+        }
     }
 }
 
