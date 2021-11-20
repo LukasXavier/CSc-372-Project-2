@@ -134,7 +134,7 @@ public class compiler {
 
         // >{(content)} | >>{(content)}
         // >{"hello world"} >>{var}
-        Pattern print = Pattern.compile("^(>\\{(.+)\\}|>>\\{(.+)\\})$");
+        Pattern print = Pattern.compile("[\\s]*(>\\{(.+)\\}|>>\\{(.+)\\})[\\s]*");
 
         // while (condition) {(do)}
         // while (i < 10) {i++}
@@ -240,8 +240,12 @@ public class compiler {
             return s;
         }
         else {
+            String temp = s.replaceAll("\\s", "").replaceAll("\\P{Print}","");
             if (variables.get(s.strip()) != null) {
                 return s;
+            }
+            else if (temp.equals("}")) {
+                return "";
             }
         }
         throw new Exception();
@@ -355,12 +359,16 @@ public class compiler {
     }
     
     private static String conditional(Pattern p, String s) throws Exception {
-        String res = "";
         Matcher m = p.matcher(s);
         Pattern[] patterns = getPatterns();
         String[] split = new String[3];
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == '{') {
+                if (s.charAt(i-1) == '>') {
+                    while (s.charAt(i) != '}') {
+                        i++;
+                    }
+                }
                 split[0] = s.substring(0, i);
                 split[1] = s.substring(i+1, s.length());
                 break;
@@ -372,6 +380,15 @@ public class compiler {
         String temp = split[1];
         for (int i = 0; i < temp.length(); i++) {
             if (temp.charAt(i) == '}') {
+                if (temp.substring(0, i).contains(">{")) {
+                    split[1] = temp.substring(0, i+1);
+                    i++;
+                    while (temp.charAt(i) != '}') {
+                        i++;
+                    }
+                    split[2] = temp.substring(i+1, temp.length());
+                    break;
+                }
                 split[1] = temp.substring(0, i);
                 if (i+2 < temp.length()) {
                     split[2] = temp.substring(i+1, temp.length());
@@ -469,6 +486,9 @@ public class compiler {
         if (m.find()) {
             return res += wLoop(wLoop, s);
         } 
+        if (s.strip().equals("}")) {
+            return "}";
+        }
         return primitive(s);
     }
 
