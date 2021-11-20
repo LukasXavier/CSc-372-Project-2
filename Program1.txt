@@ -8,14 +8,17 @@ example; Program1.txt 2 5 20 should print out "12"
 a = getArg()
 b = getArg()
 c = getArg()
+d = getArg()
 count = 0
+strTest = "a = getArg()"
+charTest = 'd'
+boolTest = true
 
 fori (i + 1, 1, c) {
-    if (4 % 3 == 0) {
-        count++
-    }
-    if (i % b == 0) {
-        count++
+    if (4 % 3 | 0 + 5 - 3 & true) {
+       if (6 | 5) {
+           a = 6
+       }
     }
 }
 
