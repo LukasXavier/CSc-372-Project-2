@@ -9,6 +9,7 @@ a = getArg()
 b = getArg()
 c = getArg()
 count = 0
+countq = 0
 strTest = "a = getArg()"
 charTest = 'd'
 boolTest = true
@@ -16,18 +17,17 @@ boolTest = true
 fori (i + 1, 1, c) {
     if (i % a == 0) {
         count = count + 1
+        if (true) {
+            countq = countq + 1 
+        }
     }
     if (i % b == 0) {
         count = count + 1  
-    }
-    if (3 + 2 == 5 + 5) {
-        >{count}
-    }
-    if (3 + 2 == b + 5) {
-        if (23 + 4 < 3 + 6) {
-            a = 3
+        if (true) {
+            countq = countq + 1 
         }
     }
 }
 
 >{count}
+>{countq}

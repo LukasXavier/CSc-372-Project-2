@@ -29,6 +29,9 @@ public class compiler {
         String compressed = "";
         for (String line : lines) {
             if (line.contains("{")) {
+                if (curlyBraceCounter != 0) {
+                    compressed += '\0';
+                }
                 if (line.contains("}")) {
                     if (curlyBrace) {
                         compressed += line + '\0';
@@ -145,7 +148,7 @@ public class compiler {
         Pattern fiLoop = Pattern.compile("^fori[\\s]*\\(([a-zA-Z]{1}[\\w]*)[\\s]*([+-[*]/])[\\s]*([\\w]+),[\\s]*([\\w]+),[\\s]*([\\w]+)\\)[\\s]*\\{(.+)\\}$");
         Pattern args = Pattern.compile("^([a-zA-Z]{1}[\\w]*)[\\s]*=[\\s]*getArg\\(\\)$");
         Pattern ints = Pattern.compile("[0-9]+");
-        Pattern chars = Pattern.compile("\'[a-zA-Z]\'");
+        Pattern chars = Pattern.compile("^\'[a-zA-Z]{1}\'$");
         Pattern bool = Pattern.compile("true|false");
         return new Pattern[] {iExpr, bExpr, vAssn, sLit, conditional, print, wLoop, ints, chars, fiLoop, args, bool};
     }
@@ -240,11 +243,11 @@ public class compiler {
             return s;
         }
         else {
-            String temp = s.replaceAll("\\s", "").replaceAll("\\P{Print}","");
+            String temp = s.replaceAll("\\s", "").replaceAll("\0","");
             if (variables.get(s.strip()) != null) {
                 return s;
             }
-            else if (temp.equals("}")) {
+            else if (temp.equals("}") || temp.equals("")) {
                 return "";
             }
         }
@@ -357,55 +360,89 @@ public class compiler {
         }
         return count;
     }
+
+    private static ArrayList<String> getExpressions(String s) throws Exception {
+        int curlyBraceCounter = 0;
+        int left = 0;
+        String res = "";
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '{') {
+                left = i + 1;
+                curlyBraceCounter++;
+                while (s.charAt(i) != '}' || curlyBraceCounter != 0) {
+                    i++;
+                    if (s.charAt(i) == '{') {
+                        curlyBraceCounter++;
+                    }
+                    else if (s.charAt(i) == '}') {
+                        curlyBraceCounter--;
+                    }
+                }
+                res = s.substring(left, i);
+                break;
+            }
+        }
+        if (res.equals("")) {
+            throw new Exception();
+        }
+        ArrayList<String> expressions = new ArrayList<String>();
+        curlyBraceCounter = 0;
+        left = 0;
+        for (int i = 0; i < res.length(); i++) {
+            if (res.charAt(i) == '\0' && curlyBraceCounter == 0) {
+                expressions.add(res.substring(left, i));
+                left = i + 1;
+            }
+            else if (res.charAt(i) == '{') {
+                curlyBraceCounter++;
+            }
+            else if (res.charAt(i) == '}') {
+                curlyBraceCounter--;
+            }
+        }
+        expressions.add(res.substring(left, res.length()));
+        return expressions;
+    }
     
     private static String conditional(Pattern p, String s) throws Exception {
         Matcher m = p.matcher(s);
         Pattern[] patterns = getPatterns();
-        String[] split = new String[3];
+        ArrayList<String> split = new ArrayList<String>();
+        int left = 0;
+        int curlyBraceCounter = 0;
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == '{') {
-                if (s.charAt(i-1) == '>') {
-                    while (s.charAt(i) != '}') {
-                        i++;
-                    }
+                curlyBraceCounter++;
+            }
+            else if (s.charAt(i) == '}') {
+                curlyBraceCounter--;
+            }
+            else if (s.charAt(i) == '\0') { 
+                if (curlyBraceCounter == 0) {
+                    split.add(s.substring(left, i));
+                    left = i + 1;
                 }
-                split[0] = s.substring(0, i);
-                split[1] = s.substring(i+1, s.length());
-                break;
             }
         }
-        if (split.length < 2) {
-            throw new Exception();
-        }
-        String temp = split[1];
-        for (int i = 0; i < temp.length(); i++) {
-            if (temp.charAt(i) == '}') {
-                if (temp.substring(0, i).contains(">{")) {
-                    split[1] = temp.substring(0, i+1);
-                    i++;
-                    while (temp.charAt(i) != '}') {
-                        i++;
-                    }
-                    split[2] = temp.substring(i+1, temp.length());
-                    break;
-                }
-                split[1] = temp.substring(0, i);
-                if (i+2 < temp.length()) {
-                    split[2] = temp.substring(i+1, temp.length());
-                }
-                break;
+        split.add(s.substring(left, s.length()));
+        String res = "";
+        for (int i = 0; i < split.size(); i++) {
+            if (split.get(i).equals("\0") || split.get(i).equals("")) {
+                continue;
             }
-        }
-        if (m.find()) {
-            if (split[2] != null && !split[2].equals("")) {
-                return "if (" + bExpr(patterns[1], m.group(2))  + ") {" + expression(split[1]) + "}" + expression(split[2]);
+            m = p.matcher(split.get(i));
+            if (m.find()) {
+                res += "if (" + bExpr(patterns[1], m.group(2))  + ") {"; 
+                for (String str : getExpressions(split.get(i))) {
+                    res += expression(str);
+                }
+                res += "}";
             }
             else {
-                return "if (" + bExpr(patterns[1], m.group(2))  + ") {" + expression(split[1]) + "}";
+                throw new Exception();
             }
-            
-        } 
-        throw new Exception();
+        }
+        return res;
     }
     
     private static String print(Pattern p, String s) throws Exception {
@@ -463,7 +500,6 @@ public class compiler {
 
     // TODO: I believe this is done
     private static String expression(String s) throws Exception {
-        String res = "";
         Pattern[] patterns = getPatterns();
         Pattern vAssn = patterns[2];
         Pattern conditional = patterns[4];
@@ -472,19 +508,19 @@ public class compiler {
         Pattern fiLoop = patterns[9];
         Matcher m = fiLoop.matcher(s);
         if (m.find()) {
-            return res += fiLoop(fiLoop, s);
+            return fiLoop(fiLoop, s) ;
         } m = vAssn.matcher(s);
         if (m.find()) {
-            return res += vAssn(vAssn, s);
+            return vAssn(vAssn, s);
         } m = conditional.matcher(s);
         if (m.find()) {
-            return res += conditional(conditional, s);
+            return conditional(conditional, s);
         } m = print.matcher(s);
         if (m.find()) {
-            return res += print(print, s);
+            return print(print, s);
         } m = wLoop.matcher(s);
         if (m.find()) {
-            return res += wLoop(wLoop, s);
+            return wLoop(wLoop, s);
         } 
         if (s.strip().equals("}")) {
             return "}";
