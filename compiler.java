@@ -131,7 +131,8 @@ public class compiler {
 
         // if (condition) {(do)}
         // if (5 < var) { >{"you lost"}}
-        Pattern conditional = Pattern.compile("[\\s]*if\\s*(\\((.+?)(?:\\)))");
+        Pattern conditional = Pattern.compile("[\\s]*((?:if|elif?))[\\s]*(\\((.+?)(?:\\)))");
+        Pattern conElse = Pattern.compile("[\\s]*((?:else?))[\\s]*(.+?)");
 
         // Pattern comments = Pattern.compile("(//.+)|(/[*].+[*]/)");
 
@@ -145,12 +146,13 @@ public class compiler {
 
         // fori ((incrementingVariable) (op) (amount), (starting inclusive), (end inclusive)) {(do)}
         // fori (i - 2, 100, 0) {>{i}}
-        Pattern fiLoop = Pattern.compile("^fori[\\s]*\\(([a-zA-Z]{1}[\\w]*)[\\s]*([+-[*]/])[\\s]*([\\w]+),[\\s]*([\\w]+),[\\s]*([\\w]+)\\)[\\s]*\\{(.+)\\}$");
+        Pattern fiLoop = Pattern.compile("fori[\\s]*\\(([a-zA-Z]{1}[\\w]*)[\\s]*([+-[*]/])[\\s]*([\\w]+),[\\s]*([\\w]+),[\\s]*([\\w]+)\\)[\\s]*\\{(.+)\\}");
         Pattern args = Pattern.compile("^([a-zA-Z]{1}[\\w]*)[\\s]*=[\\s]*getArg\\(\\)$");
         Pattern ints = Pattern.compile("[0-9]+");
         Pattern chars = Pattern.compile("^\'[a-zA-Z]{1}\'$");
         Pattern bool = Pattern.compile("true|false");
-        return new Pattern[] {iExpr, bExpr, vAssn, sLit, conditional, print, wLoop, ints, chars, fiLoop, args, bool};
+        Pattern var = Pattern.compile(".+");
+        return new Pattern[] {iExpr, bExpr, vAssn, sLit, conditional, print, wLoop, ints, chars, fiLoop, args, bool, var, conElse};
     }
 
     public static void test1() {
@@ -195,8 +197,8 @@ public class compiler {
     private static String fori(Pattern p, String s) throws Exception {
         Matcher m = p.matcher(s);
         if (m.find()) {
-            return "for (" + vAssn(getPatterns()[2], m.group(1) + " = " + m.group(3)) + m.group(1) + " < " + m.group(5)
-                   + "; " + m.group(1) + m.group(2) + m.group(2) + ") {" + expression(m.group(6)) + "}";
+            return "for (" + vAssn(getPatterns()[2], m.group(1) + " = " + m.group(4)) + m.group(1) + " < " + m.group(5)
+                   + "; " + m.group(1) + m.group(2) + "=" + m.group(3) + ") {" + expression(m.group(6)) + "}";
         }
         throw new Exception();
     }
@@ -219,7 +221,13 @@ public class compiler {
             return parsed[0];
         }
         else {
-            return typeExpression(parsed[0]) + " " + parsed[1] + " " + typeExpression(parsed[2]);
+            if (parsed[0].equals("") && parsed[1].equals("!")) {
+                return parsed[1] + " " + typeExpression(parsed[2]);
+            }
+            else {
+                return typeExpression(parsed[0]) + " " + parsed[1] + " " + typeExpression(parsed[2]);
+            }
+            
         }
     }
 
@@ -427,12 +435,25 @@ public class compiler {
         split.add(s.substring(left, s.length()));
         String res = "";
         for (int i = 0; i < split.size(); i++) {
-            if (split.get(i).equals("\0") || split.get(i).equals("")) {
+            if (split.get(i).strip().equals("\0") || split.get(i).strip().equals("")) {
                 continue;
             }
             m = p.matcher(split.get(i));
+            Matcher n = getPatterns()[13].matcher(split.get(i));
             if (m.find()) {
-                res += "if (" + bExpr(patterns[1], m.group(2))  + ") {"; 
+                if (m.group(1).equals("if")) {
+                    res += "if (" + bExpr(patterns[1], m.group(3))  + ") {"; 
+                }
+                else if (m.group(1).equals("elif")) {
+                    res += "else if (" + bExpr(patterns[1], m.group(3))  + ") {"; 
+                }
+                for (String str : getExpressions(split.get(i))) {
+                    res += expression(str);
+                }
+                res += "}";
+            }
+            else if (n.find()) {
+                res += "else {"; 
                 for (String str : getExpressions(split.get(i))) {
                     res += expression(str);
                 }
@@ -448,7 +469,7 @@ public class compiler {
     private static String print(Pattern p, String s) throws Exception {
         Matcher m = p.matcher(s);
         if (m.find()) {
-            return "System.out.println(" + primitive(m.group(2)) + ");";
+            return "System.out.print(" + primitive(m.group(2)) + ");";
         }
         throw new Exception();
     }
@@ -488,12 +509,16 @@ public class compiler {
         Pattern[] patterns = getPatterns();
         Pattern iExpr = patterns[0];
         Pattern bExpr = patterns[1];
+        Pattern var = patterns[12];
         Matcher m = bExpr.matcher(s);
         if (m.find()) {
             return bExpr(bExpr, s);
         } m = iExpr.matcher(s);
         if (m.find()) {
             return iExpr(iExpr, s);
+        } m = var.matcher(s);
+        if (m.find()) {
+            return primitive(s);
         }
         throw new Exception();
     }
@@ -506,15 +531,19 @@ public class compiler {
         Pattern print = patterns[5];
         Pattern wLoop = patterns[6];
         Pattern fiLoop = patterns[9];
+        Pattern conElse = patterns[13];
         Matcher m = fiLoop.matcher(s);
         if (m.find()) {
-            return fiLoop(fiLoop, s) ;
+            return fori(fiLoop, s);
         } m = vAssn.matcher(s);
         if (m.find()) {
             return vAssn(vAssn, s);
         } m = conditional.matcher(s);
         if (m.find()) {
             return conditional(conditional, s);
+        } m = conElse.matcher(s);
+        if (m.find()) {
+            return conditional(conElse, s);
         } m = print.matcher(s);
         if (m.find()) {
             return print(print, s);
