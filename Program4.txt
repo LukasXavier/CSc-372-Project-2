@@ -2,3 +2,12 @@
 * Produces a syntax error, this error should be unique from the errors
 * that Program3 and Program5 cover.
 */
+
+fori (i + 1, 1, 10) {
+    fori (j + 1, 1, 10) {
+        a = i + j
+        if (a % 2 == 0) {
+            >>{i+j}
+        }
+    }
+}
