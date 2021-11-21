@@ -11,7 +11,7 @@ fori (i + 1, 2, 12) {
         elif (i == 2) {
             prime = true
         }
-        elif (true < true) {
+        elif (1 < 5) {
             prime = true
         }
         else {

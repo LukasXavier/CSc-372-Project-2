@@ -9,29 +9,12 @@ a = getArg()
 b = getArg()
 c = getArg()
 count = 0
-countq = 0
-strTest = "a = getArg()"
-charTest = 'd'
-boolTest = true
-
-if (true) {
-    count = count + 1
-}
 
 fori (i + 1, 1, c) {
     if (i % a == 0) {
         count = count + 1
-        if (true) {
-            countq = countq + 1 
-        }
     }
     if (i % b == 0) {
-        count = count + 1  
-        if (true) {
-            countq = countq + 1 
-        }
+        count = count + 1
     }
 }
-
->{count}
->{countq}

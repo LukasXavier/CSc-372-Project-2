@@ -13,10 +13,10 @@ fori (i + 1, 2, a) {
         prime = false
     } 
 }
+
 if (prime) {
     >{"prime"}
-} 
-if (!prime) {
-    >{"not prime"}
-} 
-
+}
+elif (!prime) {
+    >>{"not prime"}
+}

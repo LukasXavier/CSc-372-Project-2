@@ -1,7 +1,3 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -11,108 +7,14 @@ public class compiler {
 
     private static int argc = 0;
     private static HashMap<String, String> variables;
-
-    private static void test(Pattern pattern, String test) {
-        Matcher match = pattern.matcher(test);
-        if (match.find()) {
-            System.out.println(match.group());
-        }
-        else {
-            System.out.println("No Match Found");
-        }
-    }
-
-    private static ArrayList<String> cleanLines(ArrayList<String> lines) {
-        int curlyBraceCounter = 0;
-        boolean curlyBrace = false;
-        ArrayList<String> temp = new ArrayList<String>();
-        String compressed = "";
-        for (String line : lines) {
-            if (line.contains("{")) {
-                if (curlyBraceCounter != 0) {
-                    compressed += '\0';
-                }
-                if (line.contains("}")) {
-                    if (curlyBrace) {
-                        compressed += line + '\0';
-                    } else {
-                        temp.add(line);
-                    }
-                    continue;
-                }
-                curlyBraceCounter++;
-                curlyBrace = true;
-                compressed += line;
-                continue;
-            }
-            if (line.contains("}")) {
-                curlyBraceCounter--;
-                if (curlyBraceCounter == 0) {
-                    curlyBrace = false;
-                    temp.add(compressed + line);
-                    compressed = "";
-                } else { 
-                    compressed += line + '\0';
-                }
-                continue;
-            }
-            if (curlyBraceCounter == 0) {
-                temp.add(line);
-            }
-            if (curlyBrace) {
-                compressed += line;
-            }
-        }
-        return temp;
-    }
-
-    private static ArrayList<String> getLines(String[] args) {
-        ArrayList<String> lines = new ArrayList<String>();
-        try {
-            BufferedReader file = new BufferedReader(new FileReader(args[0])); 
-            String line = file.readLine();
-            int commentCounter = 0;
-            boolean multiLineComment = false;
-
-            while (line != null) {
-                if (line.length() < 2) {
-                    if (line.length() == 1) { lines.add(line); }
-                    line = file.readLine();
-                    continue;
-                }
-                if (line.substring(0,2).equals("/*")) {
-                    multiLineComment = true;
-                    commentCounter++;
-                }
-                else if (multiLineComment) {
-                    if (commentCounter == 0) {
-                        multiLineComment = false;
-                        lines.add(line);
-                    }
-                    else if (line.substring(0, 2).equals("*/")) {
-                        commentCounter--;
-                    }
-                } else {
-                    lines.add(line);
-                }
-                line = file.readLine();
-            }
-            file.close();
-            lines = cleanLines(lines);
-        } catch (FileNotFoundException e) {
-            System.err.println(e.getMessage());
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-        return lines;
-    }
+    private static Patterns p = new Patterns();
 
     private static Pattern[] getPatterns() {
         // ^[\\w]+([\\s][+-[*]/%][\\s][\\w]+)+$
 
         // (left) (op) (right [recursive])
         // 5 + 4 - 3
-        Pattern iExpr = Pattern.compile("(\\+|\\-|\\*|%|/|[0-9])");
+        Pattern iExpr = Pattern.compile("(\\+|\\-|\\*|%|/)");
         // ^([\\w]+)([\\s](\\||&|<|>|!|==)[\\s]([\\w]+))+$
 
         // (left) (op) (right [recursive])
@@ -138,7 +40,7 @@ public class compiler {
 
         // >{(content)} | >>{(content)}
         // >{"hello world"} >>{var}
-        Pattern print = Pattern.compile("[\\s]*(>\\{(.+)\\}|>>\\{(.+)\\})[\\s]*");
+        Pattern print = Pattern.compile("[\\s]*>\\{(.+)\\}|>>\\{(.+)\\}[\\s]*");
 
         // while (condition) {(do)}
         // while (i < 10) {i++}
@@ -148,46 +50,20 @@ public class compiler {
         // fori (i - 2, 100, 0) {>{i}}
         Pattern fiLoop = Pattern.compile("fori[\\s]*\\(([a-zA-Z]{1}[\\w]*)[\\s]*([+-[*]/])[\\s]*([\\w]+),[\\s]*([\\w]+),[\\s]*([\\w]+)\\)[\\s]*\\{(.+)\\}");
         Pattern args = Pattern.compile("^([a-zA-Z]{1}[\\w]*)[\\s]*=[\\s]*getArg\\(\\)$");
-        Pattern ints = Pattern.compile("[0-9]+");
+        Pattern ints = Pattern.compile("^[\\s]*[0-9]+[\\s]*$");
         Pattern chars = Pattern.compile("^\'[a-zA-Z]{1}\'$");
         Pattern bool = Pattern.compile("true|false");
         Pattern var = Pattern.compile(".+");
         return new Pattern[] {iExpr, bExpr, vAssn, sLit, conditional, print, wLoop, ints, chars, fiLoop, args, bool, var, conElse};
-    }
-
-    public static void test1() {
-        // Pattern[] patterns = getPatterns();
-        // test(patterns[0], "3 + 6 * 1");
-        // test(patterns[0], "1 + 2-1");
-        // test(patterns[1], "true == false & true | false");
-        // test(patterns[1], "5 - 6");
-        // test(patterns[3], "\"true = false\"");
-        // test(patterns[3], "5 | 6");
-        // test(patterns[2], "thing = 3");
-        // test(patterns[2], "th*ng = rdd");
-        // test(patterns[8], "34");
-        // test(patterns[8], "d");
-        // test(patterns[9], "'s'");
-        // test(patterns[9], "a");
-        // test(patterns[10], "true");
-        // test(patterns[10], "a");
-        // test(patterns[4], "if (3 + 2 = 5) {>{\"yee\"}}");
-        // test(patterns[4], "if (3 + 2) {>{\"yee\"");
-        // test(patterns[6], ">{\"yee\"}");
-        // test(patterns[6], ">>{\"yee\"}");
-        // test(patterns[6], ">>{\"yee\"}r");
-        // test(patterns[7], "while(gamer) {fdsfds}");
-        // test(patterns[7], "while    (gamer) {fdsfds}");
-        // test(patterns[7], "while    (gamer) {}");
     }
     
     private static String getArg(String[] args, Pattern p, String s) throws Exception {
         argc++;
         Matcher m = p.matcher(s);
         if (m.find()) {
-            if (args.length <= argc) {
-                return m.group(1) + " = " + "None";
-            }
+            // if (args.length <= argc) {
+            //     return m.group(1) + " = " + "None";
+            // }
             variables.put(m.group(1), varType(args[argc]));
             return varType(args[argc]) + m.group(1) + " = " + args[argc] + ";";
         }
@@ -232,6 +108,7 @@ public class compiler {
     }
 
     private static String primitive(String s) throws Exception {
+        System.out.println(s);
         Pattern[] patterns = getPatterns();
         Pattern ints = patterns[7];
         Pattern chars = patterns[8];
@@ -249,6 +126,9 @@ public class compiler {
         } m = sLit.matcher(s);
         if (m.find()) {
             return s;
+        } m = patterns[0].matcher(s);
+        if (m.find()) {
+            return iExpr(patterns[0], s);
         }
         else {
             String temp = s.replaceAll("\\s", "").replaceAll("\0","");
@@ -328,17 +208,32 @@ public class compiler {
         return new String[] {primitive(s)};
     }
     
+    // TODO: Dis shit broken, fix the if (variables...) 
     private static String vAssn(Pattern p, String s) throws Exception {
         Matcher m = p.matcher(s);
         if (m.find()) {
+            // TODO: needs checking for multi-expressions in m.group(2)
             if (variables.get(m.group(1)) == null) {
                 variables.put(m.group(1), varType(m.group(2)));
                 return varType(m.group(2)) + m.group(1) + " = " + primitive(m.group(2)) + ";"; 
             }
             else {
-                return m.group(1) + " = " + typeExpression(m.group(2), variables.get(m.group(1))) + ";";
+                String res = "";
+                ArrayList<String> expressions = new ArrayList<String>();
+                for (String str : m.group(2).strip().split("\0")) {
+                    expressions.add(str);
+                }
+                if (variables.get(m.group(1)).equals(varType(m.group(2).strip().split("\0")[0]))) {
+                    res += m.group(1) + " = " + typeExpression(expressions.get(0), variables.get(m.group(1))) + ";";
+                }
+                String temp = "";
+                for (int i = 1; i < expressions.size(); i++) {
+                    temp += expressions.get(i) + '\0';
+                }
+                return res += expression(temp);
             }
         }
+        // TODO: TypeMismatchException
         throw new Exception();
     }
 
@@ -356,6 +251,12 @@ public class compiler {
         else if (patterns[7].matcher(s).find()) {
             return "int ";
         }
+        else if (patterns[0].matcher(s).find()) {
+            return "int ";
+        }
+        else if (patterns[1].matcher(s).find()) {
+            return "boolean ";
+        }
         throw new Exception();
     }
 
@@ -369,6 +270,7 @@ public class compiler {
         return count;
     }
 
+    // TODO: maybe wrap in try_catch and through "CurlyBraceNotFoundException"
     private static ArrayList<String> getExpressions(String s) throws Exception {
         int curlyBraceCounter = 0;
         int left = 0;
@@ -460,7 +362,7 @@ public class compiler {
                 res += "}";
             }
             else {
-                throw new Exception();
+                res += expression(split.get(i));
             }
         }
         return res;
@@ -469,27 +371,13 @@ public class compiler {
     private static String print(Pattern p, String s) throws Exception {
         Matcher m = p.matcher(s);
         if (m.find()) {
-            return "System.out.print(" + primitive(m.group(2)) + ");";
+            if (s.contains(">>")) {
+                return "System.out.println(" + primitive(m.group(2)) + ");";
+            } else {
+                return "System.out.print(" + primitive(m.group(1)) + ");";
+            }
         }
         throw new Exception();
-    }
-    // TODO:
-    private static String wLoop(Pattern p, String s) {
-        String res = "";
-        Matcher m = p.matcher(s);
-        if (m.find()) {
-            res += "";
-        }
-        return res;
-    }
-    // TODO:
-    private static String fiLoop(Pattern p, String s) {
-        String res = "";
-        Matcher m = p.matcher(s);
-        if (m.find()) {
-            res += "";
-        }
-        return res;
     }
 
     private static String typeExpression(String s, String type) throws Exception {
@@ -529,7 +417,7 @@ public class compiler {
         Pattern vAssn = patterns[2];
         Pattern conditional = patterns[4];
         Pattern print = patterns[5];
-        Pattern wLoop = patterns[6];
+        // Pattern wLoop = patterns[6];
         Pattern fiLoop = patterns[9];
         Pattern conElse = patterns[13];
         Matcher m = fiLoop.matcher(s);
@@ -547,10 +435,10 @@ public class compiler {
         } m = print.matcher(s);
         if (m.find()) {
             return print(print, s);
-        } m = wLoop.matcher(s);
-        if (m.find()) {
-            return wLoop(wLoop, s);
-        } 
+        } // m = wLoop.matcher(s);
+        // if (m.find()) {
+        //     return wLoop(wLoop, s);
+        // } 
         if (s.strip().equals("}")) {
             return "}";
         }
@@ -558,7 +446,8 @@ public class compiler {
     }
 
     public static void main(String[] args) throws Exception {
-        ArrayList<String> lines = getLines(args);
+        FileParser fp = new FileParser();
+        ArrayList<String> lines = fp.getLines(args);
         Pattern[] patterns = getPatterns();
         variables = new HashMap<String, String>();
         String expressionType;
@@ -569,14 +458,26 @@ public class compiler {
             if (expressionType.equals("fori")) {
                 System.out.println(fori(patterns[9], s));
             }
-            else if (expressionType.equals("while")) {
-                System.out.println(wLoop(patterns[6], s));
-            }
+            // else if (expressionType.equals("while")) {
+            //     System.out.println(wLoop(patterns[6], s));
+            // }
             else if (expressionType.equals("if")) {
                 if (charCount(s, '{') != charCount(s, '}')) {
                     throw new Exception();
                 }
                 System.out.println(conditional(patterns[4], s));
+            }
+            else if (expressionType.equals("elif")) {
+                if (charCount(s, '{') != charCount(s, '}')) {
+                    throw new Exception();
+                }
+                System.out.println(conditional(patterns[4], s));
+            }
+            else if (expressionType.equals("else")) {
+                if (charCount(s, '{') != charCount(s, '}')) {
+                    throw new Exception();
+                }
+                System.out.println(conditional(patterns[13], s));
             }
             else if (expressionType.contains(">{")) {
                 System.out.println(print(patterns[5], s));
@@ -585,6 +486,7 @@ public class compiler {
             // it is evaluated as either a getArg() call or a variable assignment
             else {
                 if (s.contains("getArg") && !s.contains("\"")) {
+                    // TODO: change s to m.group(1)
                     System.out.println(getArg(args, patterns[10], s));
                 }
                 else {
