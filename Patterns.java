@@ -4,9 +4,9 @@ public class Patterns {
     public Pattern iExpr = Pattern.compile("^([\\w]+)[\\s]*((?:\\+|\\-|\\*|%|/?))[\\s]*(.+)*$");
     public Pattern iIncrementor = Pattern.compile("^(.+)(\\+{2}|-{2})$|^(.+)[\\s]*(\\+=|\\*=|/=|-=)[\\s]*(.+)$");
     public Pattern bExpr = Pattern.compile("^(.+)((?:\\||&|<|>|!|={2}?))(.+)$");
-    public Pattern vAssn = Pattern.compile("^[\0]*[\\s]*([a-zA-Z]{1}[\\w]*)[\\s]*[=][\\s]*(.+)[\0]*$");
+    public Pattern vAssn = Pattern.compile("^[\\s]*([a-zA-Z]{1}[\\w]*)[\\s]*[=][\\s]*(.+)$");
     public Pattern sLit = Pattern.compile("^([\"][^\"]*[\"])$");
-    public Pattern conditional = Pattern.compile("^[\0]*[\\s]*((?:if|elif?))[\\s]+\\((.+?)(?:\\))[\\s]*\\{{1}(.*)\\}{1}[\0]*$");
+    public Pattern conditional = Pattern.compile("^[\\s]*((?:if|elif?))[\\s]+\\((.+?)(?:\\))[\\s]*\\{{1}(.*)\\}{1}$");
     public Pattern conElse = Pattern.compile("^[\\s]*(?:else?)[\\s]+\\{{1}(.*)\\}{1}$");
     public Pattern print = Pattern.compile("[\\s]*>\\{(.+)\\}|>>\\{(.+)\\}[\\s]*");
     public Pattern wLoop = Pattern.compile("^while[\\s]*\\((.+)\\)[\\s]*\\{(.+)\\}$");

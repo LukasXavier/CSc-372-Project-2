@@ -2,7 +2,6 @@
 * Produces a syntax error, this error should be unique from the errors
 * that Program3 and Program5 cover.
 */
-
 count = 0
 test = "test"
 fori (i + 1, 1, 5) {
@@ -28,4 +27,4 @@ fori (i * 5, 1, 100) {
 var = !true
 newVar = 3
 
->{yee}
+>{"yee"}
