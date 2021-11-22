@@ -5,13 +5,20 @@
 
 count = 0
 test = "test"
-test = "bruh"
 fori (i + 1, 1, 5) {
     fori (j + 1, 1, 5) {
         >{"bruh"}
         >>{count}
         if (true) {
             count = count + 1
+            count = 0
+        }
+        count = 5
+        if (false) {
+            count = 3
+        }
+        else {
+            count = 7
         }
     }
 }
@@ -19,4 +26,6 @@ fori (i * 5, 1, 100) {
     >{i}
 }
 var = !true
-newVar = test
+newVar = 3
+
+>{yee}
