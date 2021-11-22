@@ -14,13 +14,13 @@ public class FileParser {
         for (String line : lines) {
             if (line.contains(">{") && line.contains("}")) {
                 if (!curlyBrace) {temp.add(line); }
-                else { compressed += line + '~'; }
+                else { compressed += line + '\0'; }
                 continue;
             }
             if (line.contains("{")) {
-                if (curlyBraceCounter != 0) { compressed += '~'; }
+                if (curlyBraceCounter != 0) { compressed += '\0'; }
                 if (line.contains("}")) {
-                    if (curlyBrace) { compressed += line + '~'; }
+                    if (curlyBrace) { compressed += line + '\0'; }
                     else { temp.add(line); }
                     continue;
                 }
@@ -35,11 +35,11 @@ public class FileParser {
                     curlyBrace = false;
                     temp.add(compressed + line);
                     compressed = "";
-                } else { compressed += line + '~'; }
+                } else { compressed += line + '\0'; }
                 continue;
             }
             if (curlyBraceCounter == 0) { temp.add(line); }
-            if (curlyBrace) { compressed += line + '~'; }
+            if (curlyBrace) { compressed += line + '\0'; }
         }
         return temp;
     }

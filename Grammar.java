@@ -1,6 +1,6 @@
 import java.util.HashMap;
 import java.util.regex.Matcher;
-
+import exceptions.InvalidForLoopException;
 import exceptions.CompileException;
 import exceptions.InvalidBooleanExpressionException;
 import exceptions.InvalidIntegerExpressionException;
@@ -26,7 +26,10 @@ public class Grammar {
     public String forILoop(String line) throws CompileException {
         Matcher m = p.forI.matcher(line);
         m.find();
-        return "for (" + variableAssignment(m.group(1) + " = " + m.group(4)) + " " +
+        if (variables.get(m.group(1)) != null) {
+            throw new InvalidForLoopException(m.group(1)); 
+        }
+        return "for (" + variableType(m.group(4)) + " " + m.group(1) + " = " + primitive(m.group(4)) + "; " +
                 m.group(1) + " < " + primitive(m.group(5)) + "; " + 
                 variableAssignment(m.group(1) + m.group(2) + "=" + m.group(3)).replace(";", "") +
                 ") {" + expression(m.group(6)) + "}";
@@ -117,7 +120,7 @@ public class Grammar {
         if (p.iExpr.matcher(line).find()) { return line; }
         if (p.bExpr.matcher(line).find()) { return line; }
         if (variables.get(line) != null) { return line; }
-        if (line.strip().replaceAll("~", "").replaceAll("}", "").equals("")) {return "}";}
+        if (line.strip().replaceAll("\0", "").replaceAll("}", "").equals("")) {return "}";}
         throw new InvalidTypeException(line);
     }
 
@@ -136,33 +139,35 @@ public class Grammar {
         if (p.forI.matcher(line).find()) { return forILoop(line); }
         if (p.conditional.matcher(line).find()) { return conditional(line); }
         if (p.conElse.matcher(line).find()) { return conditional(line); }
-        if (line.contains("~")) {
-            String[] exprs = line.split("~");
-            String temp = "";
-            String temp2 = "";
+        if (line.contains("\0")) {
+            String[] exprs = line.split("\0");
+            String cur = "";
+            String tail = "";
             int bracketCounter = 0;
             int i = 0;
             while(i < exprs.length) {
                 if (exprs[i].contains("{")) {bracketCounter += charCount(exprs[i], '{');} 
                 if (exprs[i].contains("}")) {bracketCounter -= charCount(exprs[i], '}');} 
-                if (bracketCounter > 0) {temp += exprs[i] + '~';} 
-                else {temp += exprs[i] + '~';break;}
+                if (bracketCounter > 0) {cur += exprs[i] + '\0';} 
+                else {cur += exprs[i] + '\0';break;}
                 i++;
             }
-            for (int j = i+1; j < exprs.length; j++) {
-                temp2 += exprs[j] + '~';
+            if (bracketCounter != 0) {
+                throw new CompileException("Statement: " + line + " is missing a closing or opening brace");
             }
-            if (temp2.strip().replaceAll("~", "").equals("")) {
-                if (temp.contains("~")) {
-                    return expression(temp.substring(0, temp.lastIndexOf('~')));
+            for (int j = i+1; j < exprs.length; j++) {
+                tail += exprs[j] + '\0';
+            }
+            if (tail.strip().replaceAll("\0", "").equals("")) {
+                if (cur.contains("\0")) {
+                    return expression(cur.substring(0, cur.lastIndexOf('\0')));
                 }
                 else {
-                    return expression(temp);
+                    return expression(cur);
                 }
-                
             }
             else {
-                return expression(temp) + expression(temp2);
+                return expression(cur) + expression(tail);
             }
         }
         if (p.vAssn.matcher(line).find()) { return variableAssignment(line); }
