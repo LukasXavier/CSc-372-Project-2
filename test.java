@@ -1,29 +1,18 @@
 import java.util.regex.Matcher;
-
-import exceptions.*;
+import java.util.regex.Pattern;
 
 public class test {
-
-    public static void main(String[] args) throws IntExprException {
-        Patterns p = new Patterns();
-        String s = "if (x < 0) { fori(y + 1, 1, 20) { >{y}}}";
-        Matcher m = p.forI.matcher(s);
+    
+    public static void main(String[] args) {
+        Patterns ps = new Patterns();
+        Pattern p = ps.iIncrementor;
+        String s = "++1";
+        Matcher m = p.matcher(s);
         if (m.find()) {
-            System.out.println(m.group());
-        }
-        try {
-            method1();
-        } catch (CompileException e) {
-            System.out.println(e.getMessage());
+            for (int i = 0; i <= m.groupCount(); i++) {
+                System.out.println(m.group(i));
+            }
         }
         
-    }
-
-    public static void method1() throws IntExprException {
-        method2();
-    }
-
-    public static void method2() throws IntExprException {
-        throw new IntExprException("bruh");
     }
 }
