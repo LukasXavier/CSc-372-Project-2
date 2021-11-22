@@ -3,11 +3,20 @@
 * that Program3 and Program5 cover.
 */
 
-fori (i + 1, 1, 10) {
-    fori (j + 1, 1, 10) {
-        a = i + j
-        if (a % 2 == 0) {
-            >>{i+j}
+count = 0
+test = "test"
+test = "bruh"
+fori (i + 1, 1, 5) {
+    fori (j + 1, 1, 5) {
+        >{"bruh"}
+        >>{count}
+        if (true) {
+            count = count + 1
         }
     }
 }
+fori (i * 5, 1, 100) {
+    >{i}
+}
+var = !true
+newVar = test

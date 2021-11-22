@@ -1,0 +1,1 @@
+public class Program2{public static void main(String[] args) {int a = 450000000;boolean prime = true;for (int i = 2; i < a; i += 1) {if (a % i  ==  0) {prime = false;}}if (prime) {System.out.print("prime");}else if (!prime) {System.out.println("not prime");}}}

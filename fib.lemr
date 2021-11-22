@@ -1,0 +1,12 @@
+// test inline comment
+a = 0
+b = 1
+c = 0
+// test line 2
+fori (i + 1, 2, 30) {
+    // test
+    c = a + b
+    a = b
+    b = c
+}
+>>{b}
