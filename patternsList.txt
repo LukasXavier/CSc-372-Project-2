@@ -1,0 +1,14 @@
+0	iExpr
+1	bExpr
+2	vAssn
+3	SLit
+4	conditional
+5	print
+6	wLoop
+7	ints
+8	chars
+9	fiLoop
+10	args
+11	bool
+12	var
+13	conElse

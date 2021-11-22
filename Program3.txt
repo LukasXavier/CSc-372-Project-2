@@ -2,3 +2,20 @@
 * Produces a syntax error, this error should be unique from the errors
 * that Program4 and Program5 cover.
 */
+prime = true
+fori (i + 1, 2, 12) {
+    fori (j + 1, 2, 12) {
+        if (j % i == 0) {
+            prime = false
+        } 
+        elif (i == 2) {
+            prime = true
+        }
+        elif (1 < 5) {
+            prime = true
+        }
+        else {
+            prime = false
+        }
+    }
+}
