@@ -2,18 +2,27 @@
 * Produces a syntax error, this error should be unique from the errors
 * that Program3 and Program4 cover.
 */
-countZ = 0
-count = 80
-if (true) {
-    fori (i + 1, 1, count) {
-        if (!false) {
-            >{"not false"}
-        }
-        elif (true) {
-            >>{"println"}
-        }
-        else {
-            countZ++
-        }
+
+myInt = 0
+myChar = 'c'
+myStr = "Str"
+myBool = true
+for (i + 1, 1, 10) {
+    if (myBool) {
+        myInt++
+    }
+    elif (!myBool) {
+        myInt++
+    }
+    else {
+        myInt += 100
     }
 }
+
+>>{myInt}
+
+
+
+
+
+

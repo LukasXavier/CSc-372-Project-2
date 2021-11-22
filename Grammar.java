@@ -117,7 +117,18 @@ public class Grammar {
         if (p.iExpr.matcher(line).find()) { return line; }
         if (p.bExpr.matcher(line).find()) { return line; }
         if (variables.get(line) != null) { return line; }
+        if (line.strip().replaceAll("~", "").replaceAll("}", "").equals("")) {return "}";}
         throw new InvalidTypeException(line);
+    }
+
+    private int charCount(String s, char c) {
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == c) {
+                count++;
+            }
+        }
+        return count;
     }
 
     private String expression(String line) throws CompileException {
@@ -125,13 +136,34 @@ public class Grammar {
         if (p.forI.matcher(line).find()) { return forILoop(line); }
         if (p.conditional.matcher(line).find()) { return conditional(line); }
         if (p.conElse.matcher(line).find()) { return conditional(line); }
-        if (line.contains("\0")) {
-            String[] exprs = line.split("\0");
+        if (line.contains("~")) {
+            String[] exprs = line.split("~");
             String temp = "";
-            for (int i = 1; i < exprs.length; i++) {
-                temp += exprs[i] + '\0';
+            String temp2 = "";
+            int bracketCounter = 0;
+            int i = 0;
+            while(i < exprs.length) {
+                if (exprs[i].contains("{")) {bracketCounter += charCount(exprs[i], '{');} 
+                if (exprs[i].contains("}")) {bracketCounter -= charCount(exprs[i], '}');} 
+                if (bracketCounter > 0) {temp += exprs[i] + '~';} 
+                else {temp += exprs[i] + '~';break;}
+                i++;
             }
-            return expression(exprs[0]) + expression(temp.replaceAll("\0\\}", "}"));
+            for (int j = i+1; j < exprs.length; j++) {
+                temp2 += exprs[j] + '~';
+            }
+            if (temp2.strip().replaceAll("~", "").equals("")) {
+                if (temp.contains("~")) {
+                    return expression(temp.substring(0, temp.lastIndexOf('~')));
+                }
+                else {
+                    return expression(temp);
+                }
+                
+            }
+            else {
+                return expression(temp) + expression(temp2);
+            }
         }
         if (p.vAssn.matcher(line).find()) { return variableAssignment(line); }
         if (p.iIncrementor.matcher(line).find()) { return variableAssignment(line); }
