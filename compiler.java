@@ -7,7 +7,7 @@ public class Compiler {
     public static void main(String[] args) {
         Grammar g = new Grammar(args);
         ArrayList<String> lines = new FileParser().getLines(args);
-        String res = "public class " + args[0].replace(".txt", "") +  "{public static void main(String[] args) {";
+        String res = "public class " + args[0].replace(".txt", "").replace(".lemr", "") +  "{public static void main(String[] args) {";
         try {
             String expressionType;
             for (String s : lines) {
@@ -21,7 +21,7 @@ public class Compiler {
             }
             System.out.println(res + "}}");
         } catch (CompileException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 }
