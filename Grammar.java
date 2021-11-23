@@ -68,11 +68,11 @@ public class Grammar {
      */
     private String variableType(String line) throws InvalidTypeException {
         if (p.sLit.matcher(line).find()) { return "String "; }
-        else if (p.chars.matcher(line).find()) { return "char "; }
-        else if (p.bool.matcher(line).find()) { return "boolean "; }
-        else if (p.bExpr.matcher(line).find()) { return "boolean "; }
-        else if (p.ints.matcher(line).find()) { return "int "; }
-        else if (p.iExpr.matcher(line).find()) {return "int "; }
+        if (p.chars.matcher(line).find()) { return "char "; }
+        if (p.bool.matcher(line).find()) { return "boolean "; }
+        if (p.bExpr.matcher(line).find()) { return "boolean "; }
+        if (p.ints.matcher(line).find()) { return "int "; }
+        if (p.iExpr.matcher(line).find()) {return "int "; }
         throw new InvalidTypeException(line);
     }
 
@@ -183,8 +183,6 @@ public class Grammar {
     private String booleanExpression(String line) throws CompileException {
         Matcher m = p.bExpr.matcher(line);
         if (m.find()) {
-            // if group 2 is blank then it is just a singleton
-            if (m.group(2) == null) { return m.group(1); }
             // else checks the rest of the line
             return primitive(m.group(1)) + " " + m.group(2) + " " + primitive(m.group(3));
         // if it does not match boolean Expression, it checks if it is a boolean
