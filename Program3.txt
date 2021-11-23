@@ -1,17 +1,10 @@
-/**
-* Produces a syntax error, this error should be unique from the errors
-* that Program4 and Program5 cover.
+/*
+This file should cause a compile error if you pass Program3 1 or less
+command line arguments
+Should throw a ArgumentsNotFoundException
 */
-count = 0
-prime = true
-fori (i + 1, 2, 12) {
-    if (j % i == 0) {
-        prime = false
-    } 
-    elif (i == 2) {
-        prime = true
-    }
-    else {
-        prime = false
-    }
-}
+
+a = getArg()
+>{a}
+b = getArg()
+>{b}

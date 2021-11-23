@@ -8,6 +8,7 @@ import exceptions.ArgumentsNotFoundException;
 import exceptions.InvalidTypeException;
 import exceptions.InvalidTypeExpressionException;
 import exceptions.MalformedVariableAssignmentException;
+import exceptions.MissingCurlyBraceException;
 import exceptions.TypeMismatchException;
 
 public class Grammar {
@@ -153,7 +154,7 @@ public class Grammar {
                 i++;
             }
             if (bracketCounter != 0) {
-                throw new CompileException("Statement: " + line + " is missing a closing or opening brace");
+                throw new MissingCurlyBraceException(line);
             }
             for (int j = i+1; j < exprs.length; j++) {
                 tail += exprs[j] + '\0';
@@ -194,10 +195,11 @@ public class Grammar {
     }
 
     public String print(String line) throws CompileException {
-        line = line.substring(0, line.length()-1);
-        if (line.contains(">>{")) {
-            return "System.out.println(" + primitive(line.replaceAll(">>\\{", "")) + ");";
+        Matcher m = p.print.matcher(line);
+        m.find();
+        if (m.group(1).equals(">>")) {
+            return "System.out.println(" + primitive(m.group(2)) + ");"; 
         }
-        return "System.out.print(" + primitive(line.replaceAll(">\\{", "")) + ");";
+        return "System.out.print(" + primitive(m.group(2)) + ");";
     }
 }
