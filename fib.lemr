@@ -1,12 +1,27 @@
-// test inline comment
+/*
+This is our multi-line comments, they are similar to other
+languages except we require that the opening and closing
+star slashes are on their own line so our FileParser class can
+quickly ignore comments
+*/
+
+// we also allow for single line comments like this
+
+// this example program will print out the first 10 fibonacci numbers starting at 0
+
+// basic variable assignment
 a = 0
 b = 1
 c = 0
-// test line 2
-fori (i + 1, 2, 30) {
-    // test
+
+// a print line syntax, for print without a new-line us a single angle bracket
+>>{a}
+
+// for loops are somewhere between java-like and python
+fori (i + 1, 2, 10) {
     c = a + b
     a = b
     b = c
+    >>{a}
 }
 >>{b}
