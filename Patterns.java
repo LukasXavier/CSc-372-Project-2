@@ -59,7 +59,7 @@ public class Patterns {
     
     // integers
     // [number]
-    public Pattern ints = Pattern.compile("^[\\s]*[0-9]+[\\s]*$");
+    public Pattern ints = Pattern.compile("^[\\s]*[-]?[0-9]+[\\s]*$");
 
     // characters
     // '[char]'
