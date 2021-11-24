@@ -1,0 +1,21 @@
+a = getArg()
+b = getArg()
+c = getArg()
+count = 0
+
+
+fori (i + 1, 1, c) {
+    >{count}
+    >>{' '}
+    if (i % a == 0) {
+        count++
+    }
+    >{count}
+    >>{" "}
+    if (i % b == 0) {
+        count += 1
+    }
+    >{count}
+    >>{" "}
+}
+>>{count}
