@@ -1,28 +1,7 @@
-/**
-* Produces a syntax error, this error should be unique from the errors
-* that Program3 and Program4 cover.
+/*
+This attempts to change variable types
+Should throw a TypeMismatchException
 */
 
-myInt = 0
-myChar = 'c'
-myStr = "Str"
-myBool = true
-for (i + 1, 1, 10) {
-    if (myBool) {
-        myInt++
-    }
-    elif (!myBool) {
-        myInt++
-    }
-    else {
-        myInt += 100
-    }
-}
-
->>{myInt}
-
-
-
-
-
-
+intVar = 1
+intVar = "String"
