@@ -6,7 +6,7 @@ public class test {
     public static void main(String[] args) {
         Patterns ps = new Patterns();
         Pattern p = ps.print;
-        String s = ">>{'test'}";
+        String s = ">>{}";
         Matcher m = p.matcher(s);
         if (m.find()) {
             for (int i = 0; i <= m.groupCount(); i++) {
