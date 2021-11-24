@@ -322,10 +322,11 @@ public class Grammar {
     public String print(String line) throws CompileException {
         Matcher m = p.print.matcher(line);
         m.find();
+        String res = (m.group(2).equals("")) ? "" : primitive(m.group(2));
         // >> is a println and > is a print
         if (m.group(1).equals(">>")) {
-            return "System.out.println(" + primitive(m.group(2)) + ");"; 
+            return "System.out.println(" + res + ");"; 
         }
-        return "System.out.print(" + primitive(m.group(2)) + ");";
+        return "System.out.print(" + res + ");";
     }
 }
