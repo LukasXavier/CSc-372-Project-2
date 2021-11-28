@@ -1,0 +1,19 @@
+// 2 8 -> 8
+// 5 7 -> 35
+
+a = getArg()
+b = getArg()
+
+lcm = a * b
+start = a * b
+j = start
+fori (i + 1, 1, start) {
+    j--
+    if (i % a == 0) {
+        if (i % b == 0) {
+            lcm = j
+        }
+    }
+}
+
+>>{lcm}
