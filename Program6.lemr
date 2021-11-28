@@ -1,0 +1,11 @@
+x = getArg()
+y = getArg()
+gcd = 0
+
+fori (i + 1, 1, y) {
+    if (x % i == 0 && y % i == 0) {
+        gcd = i
+    }
+}
+
+>>{gcd}
