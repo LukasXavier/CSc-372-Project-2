@@ -1,0 +1,15 @@
+/*
+The Invalid For Loop Exception is thrown when the incrementing variable in a for Loop
+was defined outside of the for loop syntax. This is an error since the way we handle
+typing does not allow multiple instances of a variable as we don't have support for
+different scopes
+*/
+
+count = 0
+i = 0
+fori (i + 1, 10, 100) {
+    if (true) {
+        count++
+    }
+}
+>{count}

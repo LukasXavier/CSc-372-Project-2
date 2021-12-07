@@ -1,0 +1,25 @@
+/*
+We allow for multiple nested expressions, here there is a for loop inside of a for loop
+and inside of the inner for loop is a if/else if/else block and inside of the else is another
+if block
+*/
+count = 0
+fori (i + 1, 1, 10) {
+    fori (j + 1, 1, 10) {
+        if (i % 2 == 0) {
+            count += 2
+        }
+        elif (j % 2 == 0) {
+            count++
+        }
+        else {
+            if (i + j % 2 == 0) {
+                count--
+            }
+            else {
+                count *= 2
+            }
+        }
+    }
+}
+>{count}

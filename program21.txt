@@ -1,0 +1,8 @@
+/*
+We allow for variable assignments to other variables, even for variables that have not been
+initialized
+*/
+count = 0
+test = 5
+count = test
+var = count

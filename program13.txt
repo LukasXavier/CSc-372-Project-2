@@ -1,0 +1,7 @@
+/*
+The Malformed Variable Assignment Exception is thrown when the parser sees a line that
+attempts to do some assignment wether literal or computationally and finds that it doesn't
+match the grammar.
+*/
+var = 1
+1 *+ 2
