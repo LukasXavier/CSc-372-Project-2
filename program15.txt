@@ -1,0 +1,9 @@
+/*
+The Missing Curly Brace Exception is thrown when the compiler find a a curly that opens
+without closing, or a curly brace that closes no opening.
+*/
+fori (i + 1, 1, 10) {
+    if (true) {
+        count = 0
+    }}
+}

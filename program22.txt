@@ -1,0 +1,17 @@
+/*
+this algorithm prints out the first 10 values of the fibonacci sequence
+*/
+
+a = 0
+b = 1
+c = 0
+
+>>{a}
+
+fori (i + 1, 2, 10) {
+    c = a + b
+    a = b
+    b = c
+    >>{a}
+}
+>>{b}

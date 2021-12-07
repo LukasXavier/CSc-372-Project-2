@@ -1,0 +1,12 @@
+/*
+The Argument Not Found Exception is thrown when the code ask for more arguments than were passed in
+at compile time, i.e. if you ran 'java Compiler programX.txt 1 2' but the code had 3 getArg() calls
+this exception would be thrown.
+*/
+
+// if 0 arguments get passed in this line will fail
+a = getArg()
+// if only 1 argument is passed in, this line will fail
+b = getArg()
+// if 2 arguments were passed in ths line will fail
+c = getArg()

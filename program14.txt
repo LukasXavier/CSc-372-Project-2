@@ -1,0 +1,6 @@
+/*
+The Invalid Type Exception is thrown when a varaible assignment can't be resolved to a defined type
+We allow for integers, booleans, strings, and chars. Since we do not allow a prefix to integers other
+than '-' this is an invalid type
+*/
+var = !1

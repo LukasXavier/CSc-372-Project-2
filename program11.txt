@@ -1,0 +1,6 @@
+/*
+The Type Mismatch Exception is thrown when the code has a variable re-assignment to a different type
+*/
+count = "test"
+number = 5
+count = number
