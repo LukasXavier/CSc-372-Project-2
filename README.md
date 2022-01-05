@@ -10,7 +10,6 @@ In our presentation power point.
 
 This language is far from complete and has many bugs
 
-#Known Bugs
-for loops don't like to go backwards `fori (x-1, 10, 1)` does not work properly
-
+## Known Bugs
+for loops don't like to go backwards `fori (x-1, 10, 1)` does not work properly  
 Some niche nested statements may break
